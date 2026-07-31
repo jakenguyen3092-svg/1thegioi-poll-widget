@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mẫu bình chọn</title>
+  <style>
+    :root {
+      --brand: #9f224e;
+      --brand-dark: #7d173b;
+      --ink: #242424;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --surface: #fff;
+      --track: #eceff1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      color: var(--ink);
+      background: #f5f6f7;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .poll {
+      width: min(100%, 560px);
+      margin: 0 auto;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 4px 18px rgb(0 0 0 / 6%);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(20px, 4vw, 26px);
+      line-height: 1.3;
+    }
+    fieldset { margin: 0; padding: 0; border: 0; }
+    legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .choice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 10px 0;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: border-color .15s, background .15s;
+    }
+    .choice:hover, .choice:has(input:focus-visible) { border-color: var(--brand); background: #fff8fa; }
+    .choice input { width: 17px; height: 17px; margin: 1px 0 0; accent-color: var(--brand); }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+    button {
+      border: 0;
+      border-radius: 4px;
+      padding: 10px 17px;
+      color: #fff;
+      background: var(--brand);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: var(--brand-dark); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .text-button { padding: 0; color: var(--muted); background: transparent; font-size: 13px; font-weight: 400; }
+    .text-button:hover { color: var(--brand); background: transparent; text-decoration: underline; }
+    .message { min-height: 20px; margin-top: 12px; color: var(--brand); font-size: 13px; }
+    .results { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .results h2 { margin: 0 0 14px; font-size: 17px; }
+    .result { margin: 0 0 14px; }
+    .result-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 5px; font-size: 13px; }
+    .result-head strong { white-space: nowrap; color: var(--brand); }
+    .track { height: 11px; overflow: hidden; border-radius: 99px; background: var(--track); }
+    .bar { height: 100%; border-radius: inherit; background: var(--brand); transition: width .35s ease; }
+    .total { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .hint { margin: 18px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <main class="poll" aria-labelledby="poll-title">
+    <p class="eyebrow">Thăm dò ý kiến</p>
+    <h1 id="poll-title">Theo bạn, bán 100 ly cà phê mỗi ngày có khả thi?</h1>
+
+    <form id="poll-form">
+      <fieldset>
+        <legend>Chọn một phương án</legend>
+        <label class="choice"><input type="radio" name="answer" value="location"> <span>Khả thi, nếu vị trí đẹp</span></label>
+        <label class="choice"><input type="radio" name="answer" value="cost"> <span>Không khả thi, chi phí phát sinh rất lớn</span></label>
+        <label class="choice"><input type="radio" name="answer" value="model"> <span>Tùy thuộc vào mô hình kinh doanh</span></label>
+      </fieldset>
+      <div class="actions">
+        <button id="vote-button" type="submit">Bình chọn</button>
+        <button id="reset-button" class="text-button" type="button">Xóa dữ liệu mẫu</button>
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </form>
+
+    <section class="results" aria-labelledby="results-title">
+      <h2 id="results-title">Kết quả hiện tại</h2>
+      <div id="results-list"></div>
+      <p id="total" class="total"></p>
+    </section>
+    <p class="hint">Đây là bản mẫu chạy trên trình duyệt. Dữ liệu chỉ được lưu trên máy hiện tại bằng localStorage, chưa phải dữ liệu tổng hợp từ độc giả thật.</p>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'demo-poll-coffee-v1';
+    const options = [
+      { id: 'location', label: 'Khả thi, nếu vị trí đẹp' },
+      { id: 'cost', label: 'Không khả thi, chi phí phát sinh rất lớn' },
+      { id: 'model', label: 'Tùy thuộc vào mô hình kinh doanh' }
+    ];
+    const form = document.querySelector('#poll-form');
+    const message = document.querySelector('#message');
+    const resultsList = document.querySelector('#results-list');
+    const totalText = document.querySelector('#total');
+    const voteButton = document.querySelector('#vote-button');
+
+    function readVotes() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return options.reduce((votes, option) => {
+          votes[option.id] = Number.isFinite(saved?.[option.id]) ? saved[option.id] : 0;
+          return votes;
+        }, {});
+      } catch { return { location: 0, cost: 0, model: 0 }; }
+    }
+
+    function render() {
+      const votes = readVotes();
+      const total = Object.values(votes).reduce((sum, value) => sum + value, 0);
+      resultsList.replaceChildren(...options.map((option) => {
+        const count = votes[option.id];
+        const percent = total ? Math.round(count / total * 100) : 0;
+        const item = document.createElement('div');
+        item.className = 'result';
+        item.innerHTML = `<div class="result-head"><span>${option.label}</span><strong>${percent}% (${count})</strong></div><div class="track"><div class="bar" style="width:${percent}%"></div></div>`;
+        return item;
+      }));
+      totalText.textContent = `Tổng số lượt bình chọn: ${total}`;
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const selected = form.elements.answer.value;
+      if (!selected) {
+        message.textContent = 'Vui lòng chọn một phương án trước khi bình chọn.';
+        return;
+      }
+      const votes = readVotes();
+      votes[selected] += 1;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+      render();
+      message.textContent = 'Cảm ơn bạn đã bình chọn!';
+      voteButton.disabled = true;
+      form.querySelectorAll('input').forEach((input) => { input.disabled = true; });
+    });
+
+    document.querySelector('#reset-button').addEventListener('click', () => {
+      localStorage.removeItem(STORAGE_KEY);
+      form.reset();
+      form.querySelectorAll('input').forEach((input) => { input.disabled = false; });
+      voteButton.disabled = false;
+      message.textContent = 'Đã xóa dữ liệu mẫu trên máy này.';
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
