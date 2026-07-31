@@ -124,8 +124,20 @@
     </section>
   </main>
 
-  <script>
-    const STORAGE_KEY = 'demo-poll-coffee-v1';
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+    import { collection, doc, getDocs, getFirestore, runTransaction } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyBxFcdkGvAooao_tJB_h9KS-ev2j9AYvts',
+      authDomain: 'thegioi-poll.firebaseapp.com',
+      projectId: 'thegioi-poll',
+      storageBucket: 'thegioi-poll.firebasestorage.app',
+      messagingSenderId: '561056553676',
+      appId: '1:561056553676:web:381fa041dd41f22cffc069'
+    };
+    const db = getFirestore(initializeApp(firebaseConfig));
+    const STORAGE_KEY = 'voted-coffee-100-ly-v1';
     const options = [
       { id: 'location', label: 'Khả thi, nếu vị trí đẹp' },
       { id: 'cost', label: 'Không khả thi, chi phí phát sinh rất lớn' },
@@ -138,18 +150,16 @@
     const voteButton = document.querySelector('#vote-button');
     const results = document.querySelector('#poll-results');
 
-    function readVotes() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        return options.reduce((votes, option) => {
-          votes[option.id] = Number.isFinite(saved?.[option.id]) ? saved[option.id] : 0;
-          return votes;
-        }, {});
-      } catch { return { location: 0, cost: 0, model: 0 }; }
+    async function readVotes() {
+      const snapshot = await getDocs(collection(db, 'polls/coffee-100-ly/options'));
+      return options.reduce((votes, option) => {
+        votes[option.id] = snapshot.docs.find((item) => item.id === option.id)?.data().votes || 0;
+        return votes;
+      }, {});
     }
 
-    function render() {
-      const votes = readVotes();
+    async function render() {
+      const votes = await readVotes();
       const total = Object.values(votes).reduce((sum, value) => sum + value, 0);
       resultsList.replaceChildren(...options.map((option) => {
         const count = votes[option.id];
@@ -162,22 +172,39 @@
       totalText.textContent = `Tổng số lượt bình chọn: ${total}`;
     }
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const selected = form.elements.answer.value;
       if (!selected) {
         message.textContent = 'Vui lòng chọn một phương án trước khi bình chọn.';
         return;
       }
-      const votes = readVotes();
-      votes[selected] += 1;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
-      render();
-      form.hidden = true;
-      results.hidden = false;
+      if (localStorage.getItem(STORAGE_KEY)) {
+        message.textContent = 'Bạn đã bình chọn trên trình duyệt này rồi.';
+        return;
+      }
+      voteButton.disabled = true;
+      message.textContent = 'Đang ghi nhận bình chọn…';
+      try {
+        await runTransaction(db, async (transaction) => {
+          const optionRef = doc(db, 'polls/coffee-100-ly/options', selected);
+          const option = await transaction.get(optionRef);
+          if (!option.exists()) {
+            transaction.set(optionRef, { label: options.find((item) => item.id === selected).label, votes: 1 });
+          } else {
+            transaction.update(optionRef, { votes: (option.data().votes || 0) + 1 });
+          }
+        });
+        localStorage.setItem(STORAGE_KEY, 'true');
+        await render();
+        form.hidden = true;
+        results.hidden = false;
+      } catch (error) {
+        voteButton.disabled = false;
+        message.textContent = 'Chưa ghi nhận được bình chọn. Vui lòng thử lại.';
+        console.error(error);
+      }
     });
-
-    render();
   </script>
 </body>
 </html>
