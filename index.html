@@ -101,14 +101,14 @@
 <body>
   <main class="poll" aria-labelledby="poll-title">
     <p class="eyebrow">1ThếGiới · Thăm dò ý kiến</p>
-    <h1 id="poll-title">Theo bạn, bán 100 ly cà phê mỗi ngày có khả thi?</h1>
+    <h1 id="poll-title">Nếu bạn là chủ doanh nghiệp, bạn sẽ chọn ai?</h1>
 
     <form id="poll-form">
       <fieldset>
         <legend>Chọn một phương án</legend>
-        <label class="choice"><input type="radio" name="answer" value="location"> <span>Khả thi, nếu vị trí đẹp</span></label>
-        <label class="choice"><input type="radio" name="answer" value="cost"> <span>Không khả thi, chi phí phát sinh rất lớn</span></label>
-        <label class="choice"><input type="radio" name="answer" value="model"> <span>Tùy thuộc vào mô hình kinh doanh</span></label>
+        <label class="choice"><input type="radio" name="answer" value="junior"> <span>Một bạn trẻ chưa có kinh nghiệm nhưng cực kỳ chăm chỉ và chịu học</span></label>
+        <label class="choice"><input type="radio" name="answer" value="experienced-ai"> <span>Một người có kinh nghiệm và biết tận dụng AI, dù lương cao hơn</span></label>
+        <label class="choice"><input type="radio" name="answer" value="ai-team"> <span>Không tuyển thêm ai, giao phần việc đó cho AI và người sẵn có</span></label>
       </fieldset>
       <div class="actions">
         <button id="vote-button" type="submit">Bình chọn</button>
@@ -137,11 +137,12 @@
       appId: '1:561056553676:web:381fa041dd41f22cffc069'
     };
     const db = getFirestore(initializeApp(firebaseConfig));
-    const STORAGE_KEY = 'voted-coffee-100-ly-v1';
+    const POLL_ID = 'business-owner-ai-v1';
+    const STORAGE_KEY = `voted-${POLL_ID}`;
     const options = [
-      { id: 'location', label: 'Khả thi, nếu vị trí đẹp' },
-      { id: 'cost', label: 'Không khả thi, chi phí phát sinh rất lớn' },
-      { id: 'model', label: 'Tùy thuộc vào mô hình kinh doanh' }
+      { id: 'junior', label: 'Một bạn trẻ chưa có kinh nghiệm nhưng cực kỳ chăm chỉ và chịu học' },
+      { id: 'experienced-ai', label: 'Một người có kinh nghiệm và biết tận dụng AI, dù lương cao hơn' },
+      { id: 'ai-team', label: 'Không tuyển thêm ai, giao phần việc đó cho AI và người sẵn có' }
     ];
     const form = document.querySelector('#poll-form');
     const message = document.querySelector('#message');
@@ -151,7 +152,7 @@
     const results = document.querySelector('#poll-results');
 
     async function readVotes() {
-      const snapshot = await getDocs(collection(db, 'polls/coffee-100-ly/options'));
+      const snapshot = await getDocs(collection(db, `polls/${POLL_ID}/options`));
       return options.reduce((votes, option) => {
         votes[option.id] = snapshot.docs.find((item) => item.id === option.id)?.data().votes || 0;
         return votes;
@@ -187,7 +188,7 @@
       message.textContent = 'Đang ghi nhận bình chọn…';
       try {
         await runTransaction(db, async (transaction) => {
-          const optionRef = doc(db, 'polls/coffee-100-ly/options', selected);
+          const optionRef = doc(db, `polls/${POLL_ID}/options`, selected);
           const option = await transaction.get(optionRef);
           if (!option.exists()) {
             transaction.set(optionRef, { label: options.find((item) => item.id === selected).label, votes: 1 });
