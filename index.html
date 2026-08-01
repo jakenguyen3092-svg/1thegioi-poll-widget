@@ -28,7 +28,7 @@
     .poll {
       width: min(100%, 680px);
       margin: 0 auto;
-      padding: 20px 22px 22px;
+      padding: 16px 18px;
       background: var(--surface);
       border: 1px solid var(--line);
       border-top: 3px solid var(--brand);
@@ -46,7 +46,7 @@
     }
     .eyebrow::before { content: ""; width: 18px; height: 2px; background: var(--brand); }
     h1 {
-      margin: 0 0 20px;
+      margin: 0 0 14px;
       font-size: clamp(20px, 4vw, 25px);
       line-height: 1.32;
     }
@@ -56,8 +56,8 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      margin: 9px 0;
-      padding: 12px 13px;
+      margin: 7px 0;
+      padding: 10px 11px;
       border: 1px solid var(--line);
       border-radius: 3px;
       cursor: pointer;
@@ -69,7 +69,7 @@
       background: var(--brand-soft);
     }
     .choice input { width: 17px; height: 17px; margin: 1px 0 0; accent-color: var(--brand); }
-    .actions { display: flex; align-items: center; margin-top: 17px; }
+    .actions { display: flex; align-items: center; gap: 10px; margin-top: 13px; }
     button {
       border: 0;
       border-radius: 3px;
@@ -82,6 +82,8 @@
     }
     button:hover { background: var(--brand-dark); }
     button:disabled { opacity: .55; cursor: not-allowed; }
+    .button-secondary { color: var(--brand-dark); background: var(--brand-soft); }
+    .button-secondary:hover { color: #fff; background: var(--brand-dark); }
     .message { min-height: 19px; margin: 10px 0 0; color: #c23934; font-size: 13px; }
     .results h2 { margin: 0 0 5px; font-size: 18px; }
     .thanks { margin: 0 0 18px; color: var(--brand-dark); font-size: 13px; }
@@ -121,6 +123,9 @@
       <p class="thanks">Cảm ơn bạn đã tham gia thăm dò ý kiến.</p>
       <div id="results-list"></div>
       <p id="total" class="total"></p>
+      <div class="actions">
+        <button id="vote-again" class="button-secondary" type="button">Bình chọn lại</button>
+      </div>
     </section>
   </main>
 
@@ -138,7 +143,6 @@
     };
     const db = getFirestore(initializeApp(firebaseConfig));
     const POLL_ID = 'business-owner-ai-v1';
-    const STORAGE_KEY = `voted-${POLL_ID}`;
     const options = [
       { id: 'junior', label: 'Một bạn trẻ chưa có kinh nghiệm nhưng cực kỳ chăm chỉ và chịu học' },
       { id: 'experienced-ai', label: 'Một người có kinh nghiệm và biết tận dụng AI, dù lương cao hơn' },
@@ -149,6 +153,7 @@
     const resultsList = document.querySelector('#results-list');
     const totalText = document.querySelector('#total');
     const voteButton = document.querySelector('#vote-button');
+    const voteAgainButton = document.querySelector('#vote-again');
     const results = document.querySelector('#poll-results');
 
     async function readVotes() {
@@ -180,10 +185,6 @@
         message.textContent = 'Vui lòng chọn một phương án trước khi bình chọn.';
         return;
       }
-      if (localStorage.getItem(STORAGE_KEY)) {
-        message.textContent = 'Bạn đã bình chọn trên trình duyệt này rồi.';
-        return;
-      }
       voteButton.disabled = true;
       message.textContent = 'Đang ghi nhận bình chọn…';
       try {
@@ -196,7 +197,6 @@
             transaction.update(optionRef, { votes: (option.data().votes || 0) + 1 });
           }
         });
-        localStorage.setItem(STORAGE_KEY, 'true');
         await render();
         form.hidden = true;
         results.hidden = false;
@@ -205,6 +205,14 @@
         message.textContent = 'Chưa ghi nhận được bình chọn. Vui lòng thử lại.';
         console.error(error);
       }
+    });
+
+    voteAgainButton.addEventListener('click', () => {
+      form.reset();
+      message.textContent = '';
+      voteButton.disabled = false;
+      results.hidden = true;
+      form.hidden = false;
     });
   </script>
 </body>
