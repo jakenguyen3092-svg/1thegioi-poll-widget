@@ -155,6 +155,20 @@
     const voteButton = document.querySelector('#vote-button');
     const voteAgainButton = document.querySelector('#vote-again');
     const results = document.querySelector('#poll-results');
+    const poll = document.querySelector('.poll');
+
+    function notifyParentHeight() {
+      if (window.parent === window) return;
+      requestAnimationFrame(() => {
+        window.parent.postMessage({
+          type: '1thegioi-poll-height',
+          height: Math.ceil(poll.getBoundingClientRect().height)
+        }, '*');
+      });
+    }
+
+    new ResizeObserver(notifyParentHeight).observe(poll);
+    window.addEventListener('load', notifyParentHeight);
 
     async function readVotes() {
       const snapshot = await getDocs(collection(db, `polls/${POLL_ID}/options`));
@@ -200,6 +214,7 @@
         await render();
         form.hidden = true;
         results.hidden = false;
+        notifyParentHeight();
       } catch (error) {
         voteButton.disabled = false;
         message.textContent = 'Chưa ghi nhận được bình chọn. Vui lòng thử lại.';
@@ -213,6 +228,7 @@
       voteButton.disabled = false;
       results.hidden = true;
       form.hidden = false;
+      notifyParentHeight();
     });
   </script>
 </body>
