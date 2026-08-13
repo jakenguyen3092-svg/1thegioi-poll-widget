@@ -103,14 +103,14 @@
 <body>
   <main class="poll" aria-labelledby="poll-title">
     <p class="eyebrow">1ThếGiới · Thăm dò ý kiến</p>
-    <h1 id="poll-title">Theo bạn, Ukraine có thể đánh chặn tên lửa đạn đạo Nga hiệu quả hơn nếu có đủ đạn Patriot?</h1>
+    <h1 id="poll-title">Theo bạn, đâu là giải pháp quan trọng nhất giúp Ukraine đối phó tốt hơn với tên lửa đạn đạo Nga?</h1>
 
     <form id="poll-form">
       <fieldset>
         <legend>Chọn một phương án</legend>
-        <label class="choice"><input type="radio" name="answer" value="ammo-shortage"> <span>Có. Thiếu đạn đánh chặn là nguyên nhân chính khiến Ukraine khó đối phó tên lửa đạn đạo</span></label>
-        <label class="choice"><input type="radio" name="answer" value="saturation-attacks"> <span>Chỉ cải thiện một phần, vì Nga có thể phóng đồng thời nhiều tên lửa và UAV nhằm gây quá tải lưới phòng không</span></label>
-        <label class="choice"><input type="radio" name="answer" value="comprehensive-response"> <span>Cần giải pháp toàn diện hơn, gồm bổ sung đạn Patriot và tăng năng lực tập kích nguồn phóng</span></label>
+        <label class="choice"><input type="radio" name="answer" value="patriot-ammunition"> <span>Tăng mạnh nguồn đạn Patriot, đặc biệt PAC-3 MSE</span></label>
+        <label class="choice"><input type="radio" name="answer" value="layered-air-defense"> <span>Xây mạng phòng không nhiều tầng, kết hợp Patriot, SAMP/T, IRIS-T, NASAMS và drone đánh chặn</span></label>
+        <label class="choice"><input type="radio" name="answer" value="strike-launch-infrastructure"> <span>Tăng các đòn tập kích vào bệ phóng, kho đạn và cơ sở sản xuất tên lửa của Nga</span></label>
       </fieldset>
       <div class="actions">
         <button id="vote-button" type="submit">Bình chọn</button>
@@ -142,11 +142,11 @@
       appId: '1:561056553676:web:381fa041dd41f22cffc069'
     };
     const db = getFirestore(initializeApp(firebaseConfig));
-    const POLL_ID = 'ukraine-patriot-defense-v1';
+    const POLL_ID = 'ukraine-ballistic-defense-solutions-v1';
     const options = [
-      { id: 'ammo-shortage', label: 'Có. Thiếu đạn đánh chặn là nguyên nhân chính khiến Ukraine khó đối phó tên lửa đạn đạo' },
-      { id: 'saturation-attacks', label: 'Chỉ cải thiện một phần, vì Nga có thể phóng đồng thời nhiều tên lửa và UAV nhằm gây quá tải lưới phòng không' },
-      { id: 'comprehensive-response', label: 'Cần giải pháp toàn diện hơn, gồm bổ sung đạn Patriot và tăng năng lực tập kích nguồn phóng' }
+      { id: 'patriot-ammunition', label: 'Tăng mạnh nguồn đạn Patriot, đặc biệt PAC-3 MSE' },
+      { id: 'layered-air-defense', label: 'Xây mạng phòng không nhiều tầng, kết hợp Patriot, SAMP/T, IRIS-T, NASAMS và drone đánh chặn' },
+      { id: 'strike-launch-infrastructure', label: 'Tăng các đòn tập kích vào bệ phóng, kho đạn và cơ sở sản xuất tên lửa của Nga' }
     ];
     const form = document.querySelector('#poll-form');
     const message = document.querySelector('#message');
