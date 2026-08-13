@@ -103,14 +103,14 @@
 <body>
   <main class="poll" aria-labelledby="poll-title">
     <p class="eyebrow">1ThếGiới · Thăm dò ý kiến</p>
-    <h1 id="poll-title">Nếu bạn là chủ doanh nghiệp, bạn sẽ chọn ai?</h1>
+    <h1 id="poll-title">Theo bạn, Ukraine có thể đánh chặn tên lửa đạn đạo Nga hiệu quả hơn nếu có đủ đạn Patriot?</h1>
 
     <form id="poll-form">
       <fieldset>
         <legend>Chọn một phương án</legend>
-        <label class="choice"><input type="radio" name="answer" value="junior"> <span>Một bạn trẻ chưa có kinh nghiệm nhưng cực kỳ chăm chỉ và chịu học</span></label>
-        <label class="choice"><input type="radio" name="answer" value="experienced-ai"> <span>Một người có kinh nghiệm và biết tận dụng AI, dù lương cao hơn</span></label>
-        <label class="choice"><input type="radio" name="answer" value="ai-team"> <span>Không tuyển thêm ai, giao phần việc đó cho AI và người sẵn có</span></label>
+        <label class="choice"><input type="radio" name="answer" value="ammo-shortage"> <span>Có. Thiếu đạn đánh chặn là nguyên nhân chính khiến Ukraine khó đối phó tên lửa đạn đạo</span></label>
+        <label class="choice"><input type="radio" name="answer" value="saturation-attacks"> <span>Chỉ cải thiện một phần, vì Nga có thể phóng đồng thời nhiều tên lửa và UAV nhằm gây quá tải lưới phòng không</span></label>
+        <label class="choice"><input type="radio" name="answer" value="comprehensive-response"> <span>Cần giải pháp toàn diện hơn, gồm bổ sung đạn Patriot và tăng năng lực tập kích nguồn phóng</span></label>
       </fieldset>
       <div class="actions">
         <button id="vote-button" type="submit">Bình chọn</button>
@@ -142,11 +142,11 @@
       appId: '1:561056553676:web:381fa041dd41f22cffc069'
     };
     const db = getFirestore(initializeApp(firebaseConfig));
-    const POLL_ID = 'business-owner-ai-v1';
+    const POLL_ID = 'ukraine-patriot-defense-v1';
     const options = [
-      { id: 'junior', label: 'Một bạn trẻ chưa có kinh nghiệm nhưng cực kỳ chăm chỉ và chịu học' },
-      { id: 'experienced-ai', label: 'Một người có kinh nghiệm và biết tận dụng AI, dù lương cao hơn' },
-      { id: 'ai-team', label: 'Không tuyển thêm ai, giao phần việc đó cho AI và người sẵn có' }
+      { id: 'ammo-shortage', label: 'Có. Thiếu đạn đánh chặn là nguyên nhân chính khiến Ukraine khó đối phó tên lửa đạn đạo' },
+      { id: 'saturation-attacks', label: 'Chỉ cải thiện một phần, vì Nga có thể phóng đồng thời nhiều tên lửa và UAV nhằm gây quá tải lưới phòng không' },
+      { id: 'comprehensive-response', label: 'Cần giải pháp toàn diện hơn, gồm bổ sung đạn Patriot và tăng năng lực tập kích nguồn phóng' }
     ];
     const form = document.querySelector('#poll-form');
     const message = document.querySelector('#message');
